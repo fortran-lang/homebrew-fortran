@@ -5,6 +5,12 @@ class Lfortran < Formula
   sha256 "fc3c1d592c56ae2636065ec0228db747f154f65a0867f6311bc8091efd5c13a7"
   license "BSD-3-Clause"
 
+  bottle do
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.14.0"
+    sha256 cellar: :any, big_sur:  "2271bb78f53ee81be48159b4d3db86d24806302e9643c772c9f09c1ac08f3b30"
+    sha256 cellar: :any, catalina: "df59995bcf1c0d45cdcff3a99fee301fc530193693c9c4cf3c0b94cceffe924c"
+  end
+
   depends_on "cmake" => :build
   depends_on "ninja" => :build
   depends_on "llvm@11"
