@@ -5,7 +5,7 @@ This repository provides package build instructions for tools and libraries arou
 For example you can install *fpm* by tapping this repository
 
 ```
-brew tap homebrew-fpm/fortran
+brew tap fortran-lang/fortran
 brew install fpm
 ```
 
