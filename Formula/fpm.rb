@@ -1,8 +1,8 @@
 class Fpm < Formula
   desc "Fortran Package Manager (fpm)"
   homepage "https://fpm.fortran-lang.org"
-  url "https://github.com/fortran-lang/fpm/releases/download/v0.5.0/fpm-0.5.0.zip"
-  sha256 "e4a06956d2300f9aa1d06bd3323670480e946549617582e32684ded6921a921e"
+  url "https://github.com/fortran-lang/fpm/releases/download/v0.6.0/fpm-0.6.0.zip"
+  sha256 "365516f66b116a112746af043e8eccb3d854d6feb1fad0507c570433dacbf7be"
   license "MIT"
 
   bottle do
