@@ -8,6 +8,12 @@ class Fortls < Formula
   license "MIT"
   head "https://github.com/gnikit/fortls.git", branch: "master"
 
+  bottle do
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/fortls-2.13.0"
+    sha256 cellar: :any_skip_relocation, monterey: "83cef5b4236725d129e4f183b806d50a09cc538b7fb9e2e351656974931b19a1"
+    sha256 cellar: :any_skip_relocation, big_sur:  "5d4ac95cff2a8ff73371148f1499c681fdf1f8c594ec2c7aea13cff2da46097a"
+  end
+
   depends_on "python@3.10"
 
   resource "json5" do
