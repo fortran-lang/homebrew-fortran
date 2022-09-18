@@ -1,8 +1,8 @@
 class Lfortran < Formula
   desc "Modern interactive LLVM-based Fortran compiler"
   homepage "https://lfortran.org"
-  url "https://lfortran.github.io/tarballs/release/lfortran-0.15.0.tar.gz"
-  sha256 "8712c1b0c886f08937ff4c277ff3fa5c05e4dead1bafe55e3bd789be96470127"
+  url "https://lfortran.github.io/tarballs/release/lfortran-0.16.0.tar.gz"
+  sha256 "9e1ae952bdaee845d9b9318ea06ed199c74da26704926c20fadaab794307c4fe"
   license "BSD-3-Clause"
 
   bottle do
