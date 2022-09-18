@@ -4,6 +4,7 @@ class Fpm < Formula
   url "https://github.com/fortran-lang/fpm/releases/download/v0.6.0/fpm-0.6.0.zip"
   sha256 "365516f66b116a112746af043e8eccb3d854d6feb1fad0507c570433dacbf7be"
   license "MIT"
+  revision 1
 
   bottle do
     root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/fpm-0.6.0"
