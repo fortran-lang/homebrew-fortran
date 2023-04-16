@@ -16,6 +16,9 @@ class Fpm < Formula
   fails_with gcc: "4"
   fails_with gcc: "5"
   fails_with gcc: "6"
+  fails_with gcc: "7"
+  fails_with gcc: "8"
+  fails_with gcc: "9"
   fails_with :clang
 
   def install
