@@ -17,6 +17,7 @@ class Fpm < Formula
 
   def install
     ENV.fortran
+    system "pwd"
     system "./install.sh", "--prefix=#{prefix}"
   end
 
