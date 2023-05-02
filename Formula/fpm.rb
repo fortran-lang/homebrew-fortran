@@ -23,6 +23,7 @@ class Fpm < Formula
 
   def install
     ENV.fortran
+    `sudo chmod a+x ./install.sh`
     `./install.sh --prefix=#{prefix}`
   end
 
