@@ -22,9 +22,10 @@ class Fpm < Formula
   fails_with :clang
 
   def install
+    require "fileutils"
     ENV.fortran
-    ENV[HOMEBREW_NO_INSTALL_FROM_API] = '1'
-    system "chmod", "a+x", "./install.sh"
+    ENV[HOMEBREW_NO_INSTALL_FROM_API] = "1"
+    FileUtils.chmod("a+x", "./install.sh")
     system "./install.sh", "--prefix=#{prefix}"
   end
 
