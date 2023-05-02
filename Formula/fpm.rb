@@ -23,7 +23,10 @@ class Fpm < Formula
 
   def install
     ENV.fortran
-    system "./install.sh", "--prefix=#{prefix}"
+    #system "./install.sh", "--prefix=#{prefix}"
+    
+    # temporary: show stdout
+    `./install.sh --prefix=#{prefix}`
   end
 
   test do
