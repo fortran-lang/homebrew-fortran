@@ -23,8 +23,9 @@ class Fpm < Formula
 
   def install
     ENV.fortran
-    `chmod a+x ./install.sh`
-    `./install.sh --prefix=#{prefix}`
+    system "export HOMEBREW_NO_INSTALL_FROM_API=1"
+    system "chmod a+x ./install.sh"
+    system "./install.sh", "--prefix=#{prefix}"
   end
 
   test do
