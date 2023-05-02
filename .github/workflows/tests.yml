@@ -28,6 +28,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: brew install-bundler-gems
 
+      # Ensure the appropriate Homebrew environment variables are enabled
+      - run: export HOMEBREW_NO_INSTALL_FROM_API=1
+
       - run: brew test-bot -v --only-cleanup-before
 
       - run: brew test-bot -v --only-setup
