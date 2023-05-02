@@ -34,10 +34,7 @@ jobs:
 
       - run: brew test-bot -v --only-tap-syntax
 
-      - run: |
-          brew test-bot -v --only-formulae
-        env: 
-          HOMEBREW_NO_INSTALL_FROM_API:1
+      - run: brew test-bot -v --only-formulae
         if: github.event_name == 'pull_request'
 
       - name: Upload bottles as artifact
