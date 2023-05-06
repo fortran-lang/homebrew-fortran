@@ -17,8 +17,11 @@ jobs:
       - name: Pull bottles
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
+          HOMEBREW_NO_INSTALL_FROM_API: 1
           PULL_REQUEST: ${{ github.event.pull_request.number }}
-        run: brew pr-pull --debug --tap=$GITHUB_REPOSITORY $PULL_REQUEST
+        run: |
+          echo ${{ env.HOMEBREW_NO_INSTALL_FROM_API }}
+          brew pr-pull --debug --tap=$GITHUB_REPOSITORY $PULL_REQUEST
 
       - name: Push commits
         uses: Homebrew/actions/git-try-push@master
