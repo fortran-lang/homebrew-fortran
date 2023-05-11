@@ -6,9 +6,9 @@ class Fpm < Formula
   license "MIT"
 
   bottle do
-    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/fpm-0.8.1_1"
-    sha256 cellar: :any, ventura:  "bf09e4ab59087d90953d54ba63765117379a01c44c09b067018cd3ba8ee258de"
-    sha256 cellar: :any, monterey: "438a72f03ab002b16e71ceac84d77f1d653ea1262e8a497a988b169720553f0a"
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/fpm-0.8.2"
+    sha256 cellar: :any, ventura:  "c45c3d55b9666a44c9f899b467e0cd46c9ca444ddbf19acc772017f5a0db73e1"
+    sha256 cellar: :any, monterey: "ed220892536f6bf52027e3b1f076fc4a4eb5440eeaa5c8f40af72188b427bf18"
   end
 
   depends_on "curl" => :build
