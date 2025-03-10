@@ -61,7 +61,6 @@ jobs:
       - name: Update formula
         if: env.UPDATE_NEEDED == 'true'
         run: |
-          TIMESTAMP=$(date +%s)
           RUN_ID="${{ github.run_id }}-${{ github.run_number }}"
           sed -i "1s/^/# Formula last updated on $(date -u +"%Y-%m-%dT%H:%M:%SZ") (Run: ${RUN_ID})\n/" Formula/fpm.rb
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${{ env.LATEST_VERSION_V }}/fpm-${{ env.LATEST_VERSION }}.zip\"|" Formula/fpm.rb
@@ -116,7 +115,6 @@ jobs:
         if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
         run: |
           echo "Waiting for test-bot workflow to complete..."
-          PR_NUMBER=${{ steps.create-pr.outputs.pull-request-number }}
           timeout=1800  # 30 minutes in seconds
           interval=60   # Check every minute
           elapsed=0
