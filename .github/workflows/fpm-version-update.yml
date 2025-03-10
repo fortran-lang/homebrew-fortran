@@ -8,6 +8,9 @@ on:
 jobs:
   update-fpm:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -48,18 +51,103 @@ jobs:
           echo "SHA256=${SHA256}" >> "$GITHUB_ENV"
           echo "New SHA256: ${SHA256}"
 
+      - name: Create branch for update
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          BRANCH_NAME="auto-update-fpm-${LATEST_VERSION}"
+          git checkout -b "${BRANCH_NAME}"
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> "$GITHUB_ENV"
+
       - name: Update formula
         if: env.UPDATE_NEEDED == 'true'
         run: |
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${LATEST_VERSION_V}/fpm-${LATEST_VERSION}.zip\"|" Formula/fpm.rb
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/fpm.rb
 
-      - name: Commit and push changes
+      - name: Commit changes
         if: env.UPDATE_NEEDED == 'true'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add Formula/fpm.rb
           git commit -m "Update fpm to ${LATEST_VERSION}"
-          git push
 
+      - name: Push changes to branch
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          git push origin "${BRANCH_NAME}"
+
+      - name: Create Pull Request
+        if: env.UPDATE_NEEDED == 'true'
+        id: create-pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update fpm to ${{ env.LATEST_VERSION }}"
+          title: "Update fpm to ${{ env.LATEST_VERSION }}"
+          body: |
+            This PR automatically updates the fpm formula to version ${{ env.LATEST_VERSION }}.
+            
+            **Changes:**
+            - Updated URL to ${{ env.LATEST_VERSION_V }} release
+            - Updated SHA256 to match the new release
+            
+            This PR was created automatically by GitHub Actions.
+          branch: ${{ env.BRANCH_NAME }}
+          base: main
+          labels: |
+            automated-pr
+            version-bump
+
+      # Wait for test-bot CI to complete
+      - name: Wait for test-bot to complete
+        if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
+        run: |
+          # Wait for CI to start and finish (maximum 30 minutes)
+          echo "Waiting for test-bot workflow to complete..."
+          PR_NUMBER=${{ steps.create-pr.outputs.pull-request-number }}
+          timeout=1800  # 30 minutes in seconds
+          interval=60   # Check every minute
+          elapsed=0
+          
+          while [ $elapsed -lt $timeout ]; do
+            # Check if test-bot workflow has completed
+            STATUS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=completed&event=pull_request&head_sha=$(git rev-parse HEAD)")
+            
+            COMPLETED=$(echo "$STATUS" | jq -r '.workflow_runs[] | select(.name == "brew test-bot") | .status')
+            
+            if [ "$COMPLETED" = "completed" ]; then
+              CONCLUSION=$(echo "$STATUS" | jq -r '.workflow_runs[] | select(.name == "brew test-bot") | .conclusion')
+              if [ "$CONCLUSION" = "success" ]; then
+                echo "test-bot workflow completed successfully!"
+                break
+              elif [ "$CONCLUSION" = "failure" ]; then
+                echo "test-bot workflow failed!"
+                exit 1
+              fi
+            fi
+            
+            sleep $interval
+            elapsed=$((elapsed + interval))
+            echo "Still waiting... ($elapsed seconds elapsed)"
+          done
+          
+          if [ $elapsed -ge $timeout ]; then
+            echo "Timeout waiting for test-bot workflow to complete"
+            exit 1
+          fi
+
+      # Add label to trigger pr-pull workflow
+      - name: Add pr-pull label
+        if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.create-pr.outputs.pull-request-number }},
+              labels: ['pr-pull']
+            })
