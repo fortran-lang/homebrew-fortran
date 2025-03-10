@@ -1,4 +1,4 @@
-# Formula last updated on 2025-03-10
+# Formula last updated on 2025-03-10 for version 0.11.0
 
 class Fpm < Formula
   desc "Fortran Package Manager (fpm)"
