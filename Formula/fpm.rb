@@ -1,3 +1,4 @@
+# Formula last updated on 2025-03-10T12:46:39Z (Run: 13765004122-9)
 # Formula last updated on 2025-03-10
 
 class Fpm < Formula
