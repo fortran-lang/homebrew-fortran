@@ -62,9 +62,9 @@ jobs:
       - name: Update formula
         if: env.UPDATE_NEEDED == 'true'
         run: |
-          sed -i "1i # Formula last updated on $(date)" Formula/fpm.rb
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${LATEST_VERSION_V}/fpm-${LATEST_VERSION}.zip\"|" Formula/fpm.rb
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/fpm.rb
+          echo "# Formula last updated on $(date +'%Y-%m-%d %H:%M:%S')" >> Formula/fpm.rb
 
       - name: Commit changes
         if: env.UPDATE_NEEDED == 'true'
@@ -72,12 +72,13 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add Formula/fpm.rb
+          git status  # Check if any files are staged for commit
           git commit -m "Update fpm to ${LATEST_VERSION}"
 
       - name: Push changes to branch
         if: env.UPDATE_NEEDED == 'true'
         run: |
-          git push origin "${BRANCH_NAME}"
+          git push origin ${{ env.BRANCH_NAME }}
 
       - name: Create Pull Request
         if: env.UPDATE_NEEDED == 'true'
