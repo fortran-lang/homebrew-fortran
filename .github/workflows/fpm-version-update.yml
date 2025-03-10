@@ -62,16 +62,9 @@ jobs:
       - name: Update formula
         if: env.UPDATE_NEEDED == 'true'
         run: |
-          # Replace the existing timestamp or add a new one at the top if it doesn't exist
-          if grep -q "# Formula last updated on" Formula/fpm.rb; then
-            # Replace the existing timestamp line
-            sed -i "0,/# Formula last updated on/ c\# Formula last updated on $(date +'%Y-%m-%d %H:%M:%S')" Formula/fpm.rb
-          else
-            # If no timestamp line exists, add it at the top
-            sed -i "1i\# Formula last updated on $(date +'%Y-%m-%d %H:%M:%S')" Formula/fpm.rb
-          fi
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${LATEST_VERSION_V}/fpm-${LATEST_VERSION}.zip\"|" Formula/fpm.rb
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/fpm.rb
+          echo "# Formula last updated on $(date +'%Y-%m-%d %H:%M:%S')" >> Formula/fpm.rb
 
       - name: Commit changes
         if: env.UPDATE_NEEDED == 'true'
