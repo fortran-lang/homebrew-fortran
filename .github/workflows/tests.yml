@@ -26,7 +26,11 @@ jobs:
       - name: Checkout PR commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.head_sha || github.sha }}
+          ref: ${{ github.event.inputs.head_sha }}
+
+      - name: Debug head_sha
+        run: echo "head_sha=${{ github.event.inputs.head_sha }}"
+
 
       - name: Set up Homebrew
         id: set-up-homebrew
@@ -55,7 +59,7 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         env:
           HOMEBREW_ARCH: ${{ matrix.arch }}
-          GITHUB_SHA: ${{ github.event.inputs.head_sha || github.sha }}
+          GITHUB_SHA: ${{ github.event.inputs.head_sha }}
 
       - name: Upload bottles as artifact
         if: always() && (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
