@@ -101,6 +101,22 @@ jobs:
             automated-pr
             version-bump
 
+      - name: Trigger brew test-bot
+        if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'test-bot.yml',  # Must match the filename in .github/workflows/
+              ref: 'main',
+              inputs: {
+                head_sha: '${{ steps.create-pr.outputs.pull-request-head-sha }}'
+              }
+            });
+
       # Wait for test-bot CI to complete
       - name: Wait for test-bot to complete
         if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
