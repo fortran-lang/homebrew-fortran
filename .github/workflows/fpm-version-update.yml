@@ -103,7 +103,7 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'test-bot.yml',  # Must match the filename in .github/workflows/
+              workflow_id: 'tests.yml',  # Must match the filename in .github/workflows/
               ref: 'main',
               inputs: {
                 head_sha: '${{ steps.create-pr.outputs.pull-request-head-sha }}'
