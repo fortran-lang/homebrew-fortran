@@ -4,6 +4,11 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:  # Added to allow manual triggering from the main workflow
+    inputs:
+      head_sha:  # Input for the PR’s head SHA
+        description: 'Head SHA of the PR to test'
+        required: true
 jobs:
   test-bot:
     strategy:
@@ -42,12 +47,12 @@ jobs:
       - run: brew test-bot --only-tap-syntax
 
       - run: brew test-bot --only-formulae
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         env:
           HOMEBREW_ARCH: ${{ matrix.arch }}
 
       - name: Upload bottles as artifact
-        if: always() && github.event_name == 'pull_request'
+        if: always() && (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-artifact@v4
         with:
           name: bottles-${{ matrix.os }}-${{ matrix.arch }}

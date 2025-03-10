@@ -61,7 +61,6 @@ jobs:
       - name: Update formula
         if: env.UPDATE_NEEDED == 'true'
         run: |
-          TIMESTAMP=$(date +%s)
           RUN_ID="${{ github.run_id }}-${{ github.run_number }}"
           sed -i "1s/^/# Formula last updated on $(date -u +"%Y-%m-%dT%H:%M:%SZ") (Run: ${RUN_ID})\n/" Formula/fpm.rb
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${{ env.LATEST_VERSION_V }}/fpm-${{ env.LATEST_VERSION }}.zip\"|" Formula/fpm.rb
@@ -95,12 +94,27 @@ jobs:
             automated-pr
             version-bump
 
-      # Wait for test-bot CI to complete (unchanged)
+      - name: Trigger brew test-bot
+        if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'test-bot.yml',  # Must match the filename in .github/workflows/
+              ref: 'main',
+              inputs: {
+                head_sha: '${{ steps.create-pr.outputs.pull-request-head-sha }}'
+              }
+            });
+
+      # Wait for test-bot CI to complete
       - name: Wait for test-bot to complete
         if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
         run: |
           echo "Waiting for test-bot workflow to complete..."
-          PR_NUMBER=${{ steps.create-pr.outputs.pull-request-number }}
           timeout=1800  # 30 minutes in seconds
           interval=60   # Check every minute
           elapsed=0
@@ -134,7 +148,7 @@ jobs:
 
       - name: Add pr-pull label
         if: env.UPDATE_NEEDED == 'true' && steps.create-pr.outputs.pull-request-number
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
