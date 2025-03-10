@@ -62,8 +62,9 @@ jobs:
       - name: Update formula
         if: env.UPDATE_NEEDED == 'true'
         run: |
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          sed -i "1i # Formula last updated on ${TIMESTAMP}" Formula/fpm.rb
+          TIMESTAMP=$(date +%s)
+          RUN_ID="${{ github.run_id }}-${{ github.run_number }}"
+          sed -i "1s/^/# Formula last updated on $(date -u +"%Y-%m-%dT%H:%M:%SZ") (Run: ${RUN_ID})\n/" Formula/fpm.rb
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${{ env.LATEST_VERSION_V }}/fpm-${{ env.LATEST_VERSION }}.zip\"|" Formula/fpm.rb
           sed -i "s|sha256 \".*\"|sha256 \"${{ env.SHA256 }}\"|" Formula/fpm.rb
 
