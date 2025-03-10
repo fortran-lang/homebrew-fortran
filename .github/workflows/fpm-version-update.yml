@@ -28,7 +28,7 @@ jobs:
       - name: Extract current formula version
         id: get-current-version
         run: |
-          CURRENT_VERSION="$(grep -oP 'url "https://github.com/fortran-lang/fpm/releases/download/v\K[0-9.]+' Formula/fpm.rb)"
+          CURRENT_VERSION="$(grep -oP 'url "https://github.com/fortran-lang/fpm/releases/download/v\K[0-9.]+' Formula/fpm.rb | head -n 1)"
           echo "CURRENT_VERSION=${CURRENT_VERSION}" >> "$GITHUB_ENV"
           echo "Current version: ${CURRENT_VERSION}"
 
@@ -80,7 +80,7 @@ jobs:
       - name: Create Pull Request
         if: env.UPDATE_NEEDED == 'true'
         id: create-pr
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update fpm to ${{ env.LATEST_VERSION }}"
