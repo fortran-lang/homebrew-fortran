@@ -72,6 +72,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add Formula/fpm.rb
+          git status  # Check if any files are staged for commit
           git commit -m "Update fpm to ${LATEST_VERSION}"
 
       - name: Push changes to branch
