@@ -1,0 +1,65 @@
+name: Auto-update fpm Formula
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  update-fpm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch latest fpm release
+        id: get-latest-release
+        run: |
+          VERSION_WITH_V="$(curl -s https://api.github.com/repos/fortran-lang/fpm/releases/latest | jq -r '.tag_name')"
+          VERSION_WITHOUT_V="${VERSION_WITH_V#v}"  # Remove leading 'v'
+          echo "LATEST_VERSION=${VERSION_WITHOUT_V}" >> "$GITHUB_ENV"
+          echo "LATEST_VERSION_V=${VERSION_WITH_V}" >> "$GITHUB_ENV"
+          echo "Latest version: ${VERSION_WITH_V} (stripped: ${VERSION_WITHOUT_V})"
+
+      - name: Extract current formula version
+        id: get-current-version
+        run: |
+          CURRENT_VERSION="$(grep -oP 'url "https://github.com/fortran-lang/fpm/releases/download/v\K[0-9.]+' Formula/fpm.rb)"
+          echo "CURRENT_VERSION=${CURRENT_VERSION}" >> "$GITHUB_ENV"
+          echo "Current version: ${CURRENT_VERSION}"
+
+      - name: Compare versions
+        id: check-update
+        run: |
+          if [ "${LATEST_VERSION}" != "${CURRENT_VERSION}" ]; then
+            echo "New version available!"
+            echo "UPDATE_NEEDED=true" >> "$GITHUB_ENV"
+          else
+            echo "No update needed."
+          fi
+
+      - name: Get new SHA256 hash
+        if: env.UPDATE_NEEDED == 'true'
+        id: get-sha256
+        run: |
+          SHA_URL="https://github.com/fortran-lang/fpm/releases/download/${LATEST_VERSION_V}/fpm-${LATEST_VERSION}.zip.sha256"
+          SHA256="$(curl -sL "${SHA_URL}" | awk '{print $1}')"
+          echo "SHA256=${SHA256}" >> "$GITHUB_ENV"
+          echo "New SHA256: ${SHA256}"
+
+      - name: Update formula
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${LATEST_VERSION_V}/fpm-${LATEST_VERSION}.zip\"|" Formula/fpm.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/fpm.rb
+
+      - name: Commit and push changes
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add Formula/fpm.rb
+          git commit -m "Update fpm to ${LATEST_VERSION}"
+          git push
+

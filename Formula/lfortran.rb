@@ -12,7 +12,7 @@ class Lfortran < Formula
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
-  depends_on "llvm@11"
+  depends_on "llvm@14"
   depends_on "zlib"
 
   def install
@@ -33,7 +33,7 @@ class Lfortran < Formula
       end
     EOS
     system "#{bin}/lfortran", testpath/"hello.f90", "-o", testpath/"hello"
-    assert_predicate testpath/"hello", :exist?
+    assert_path_exists testpath/"hello"
     system testpath/"hello"
   end
 end
