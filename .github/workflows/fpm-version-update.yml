@@ -52,6 +52,12 @@ jobs:
           echo "SHA256=${SHA256}" >> "$GITHUB_ENV"
           echo "New SHA256: ${SHA256}"
 
+      - name: Create branch for update
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          BRANCH_NAME="auto-update-fpm-${{ env.LATEST_VERSION }}-$(date +%s)"  # Add timestamp to branch name for uniqueness
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> "$GITHUB_ENV"
+
       - name: Update formula
         if: env.UPDATE_NEEDED == 'true'
         run: |
