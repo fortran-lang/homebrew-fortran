@@ -11,15 +11,10 @@ jobs:
       matrix:
         include:
           # Intel builds
-          - os: macos-12
-            arch: x86_64
           - os: macos-13
             arch: x86_64
           - os: macos-14
             arch: x86_64
-          # ARM builds
-          - os: macos-14-arm64
-            arch: arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60  # Increased timeout for ARM builds
     steps:
