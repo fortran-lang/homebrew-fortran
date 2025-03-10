@@ -25,17 +25,18 @@ jobs:
       - name: Extract current formula version
         id: get-current-version
         run: |
-          CURRENT_VERSION="$(grep -oP 'url "https://github.com/fortran-lang/fpm/releases/download/v\K[0-9.]+' Formula/fpm.rb)"
+          CURRENT_VERSION="$(grep -oP 'url "https://github.com/fortran-lang/fpm/releases/download/v\K[0-9.]+' Formula/fpm.rb | head -n 1)"
           echo "CURRENT_VERSION=${CURRENT_VERSION}" >> "$GITHUB_ENV"
           echo "Current version: ${CURRENT_VERSION}"
 
       - name: Compare versions
         id: check-update
         run: |
-          if [ "${LATEST_VERSION}" != "${CURRENT_VERSION}" ]; then
-            echo "New version available!"
+          if [ "${LATEST_VERSION}" != "${CURRENT_VERSION}" ] || [ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]; then
+            echo "New version available, or manually triggered action!"
             echo "UPDATE_NEEDED=true" >> "$GITHUB_ENV"
           else
+            echo "UPDATE_NEEDED=false" >> "$GITHUB_ENV"
             echo "No update needed."
           fi
 
