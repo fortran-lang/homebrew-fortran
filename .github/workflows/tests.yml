@@ -4,11 +4,7 @@ on:
     branches:
       - main
   pull_request:
-  workflow_dispatch:  # Added to allow manual triggering from the main workflow
-    inputs:
-      head_sha:  # Input for the PR’s head SHA
-        description: 'Head SHA of the PR to test'
-        required: true
+        
 jobs:
   test-bot:
     strategy:
@@ -23,15 +19,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60  # Increased timeout for ARM builds
     steps:
-      - name: Checkout PR commit
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.head_sha }}
-
-      - name: Debug head_sha
-        run: echo "head_sha=${{ github.event.inputs.head_sha }}"
-
-
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -56,13 +43,12 @@ jobs:
       - run: brew test-bot --only-tap-syntax
 
       - run: brew test-bot --only-formulae
-        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'pull_request' 
         env:
           HOMEBREW_ARCH: ${{ matrix.arch }}
-          GITHUB_SHA: ${{ github.event.inputs.head_sha }}
 
       - name: Upload bottles as artifact
-        if: always() && (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
+        if: always() && (github.event_name == 'pull_request')
         uses: actions/upload-artifact@v4
         with:
           name: bottles-${{ matrix.os }}-${{ matrix.arch }}
