@@ -1,3 +1,5 @@
+# Formula last updated on 2025-03-10
+
 class Fpm < Formula
   desc "Fortran Package Manager (fpm)"
   homepage "https://fpm.fortran-lang.org"
