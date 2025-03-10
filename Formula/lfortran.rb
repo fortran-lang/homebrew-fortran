@@ -12,7 +12,7 @@ class Lfortran < Formula
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
-  depends_on "llvm@11"
+  depends_on "llvm@14"
   depends_on "zlib"
 
   def install
