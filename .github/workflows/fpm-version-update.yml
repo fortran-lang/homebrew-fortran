@@ -70,7 +70,6 @@ jobs:
             # If no timestamp line exists, add it at the top
             sed -i "1i\# Formula last updated on $(date +'%Y-%m-%d %H:%M:%S')" Formula/fpm.rb
           fi
-          sed -i "1s|^|# Formula last updated on $(date +'%Y-%m-%d %H:%M:%S')\n|" Formula/fpm.rb
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${LATEST_VERSION_V}/fpm-${LATEST_VERSION}.zip\"|" Formula/fpm.rb
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/fpm.rb
 
