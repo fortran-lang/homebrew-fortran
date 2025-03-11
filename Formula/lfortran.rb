@@ -14,6 +14,7 @@ class Lfortran < Formula
   depends_on "ninja" => :build
   depends_on "llvm"
   depends_on "zlib"
+  depends_on "z3"
 
   def install
     cmake_args = std_cmake_args
