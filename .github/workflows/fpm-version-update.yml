@@ -1,0 +1,95 @@
+name: Auto-update fpm Formula
+
+on:
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  update-fpm:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch latest fpm release
+        id: get-latest-release
+        run: |
+          VERSION_WITH_V="$(curl -s https://api.github.com/repos/fortran-lang/fpm/releases/latest | jq -r '.tag_name')"
+          VERSION_WITHOUT_V="${VERSION_WITH_V#v}"  # Remove leading 'v'
+          echo "LATEST_VERSION=${VERSION_WITHOUT_V}" >> "$GITHUB_ENV"
+          echo "LATEST_VERSION_V=${VERSION_WITH_V}" >> "$GITHUB_ENV"
+          echo "Latest version: ${VERSION_WITH_V} (stripped: ${VERSION_WITHOUT_V})"
+
+      - name: Extract current formula version
+        id: get-current-version
+        run: |
+          CURRENT_VERSION="$(grep -oP 'url "https://github.com/fortran-lang/fpm/releases/download/v\K[0-9.]+' Formula/fpm.rb | head -n 1)"
+          echo "CURRENT_VERSION=${CURRENT_VERSION}" >> "$GITHUB_ENV"
+          echo "Current version: ${CURRENT_VERSION}"
+
+      - name: Compare versions
+        id: check-update
+        run: |
+          if [ "${{ env.LATEST_VERSION }}" != "${{ env.CURRENT_VERSION }}" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "New version available or manually triggered!"
+            echo "UPDATE_NEEDED=true" >> "$GITHUB_ENV"
+          else
+            echo "UPDATE_NEEDED=false" >> "$GITHUB_ENV"
+            echo "No update needed."
+          fi
+
+      - name: Get new SHA256 hash
+        if: env.UPDATE_NEEDED == 'true'
+        id: get-sha256
+        run: |
+          SHA_URL="https://github.com/fortran-lang/fpm/releases/download/${{ env.LATEST_VERSION_V }}/fpm-${{ env.LATEST_VERSION }}.zip.sha256"
+          SHA256="$(curl -sL "${SHA_URL}" | awk '{print $1}')"
+          echo "SHA256=${SHA256}" >> "$GITHUB_ENV"
+          echo "New SHA256: ${SHA256}"
+
+      - name: Create branch for update
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          BRANCH_NAME="auto-update-fpm-${{ env.LATEST_VERSION }}-$(date +%s)"  # Add timestamp to branch name for uniqueness
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> "$GITHUB_ENV"
+
+      - name: Update formula
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          RUN_ID="${{ github.run_id }}-${{ github.run_number }}"
+          sed -i "1s/^/# Formula last updated on $(date -u +"%Y-%m-%dT%H:%M:%SZ") (Run: ${RUN_ID})\n/" Formula/fpm.rb
+          sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${{ env.LATEST_VERSION_V }}/fpm-${{ env.LATEST_VERSION }}.zip\"|" Formula/fpm.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${{ env.SHA256 }}\"|" Formula/fpm.rb
+          
+      - name: Debug - Show changes
+        if: env.UPDATE_NEEDED == 'true'
+        run: |
+          git diff Formula/fpm.rb || echo "No changes detected in Formula/fpm.rb"
+
+      - name: Create Pull Request
+        if: env.UPDATE_NEEDED == 'true'
+        id: create-pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update fpm to ${{ env.LATEST_VERSION }} with timestamp"
+          title: "Update fpm to ${{ env.LATEST_VERSION }}"
+          body: |
+            This PR automatically updates the fpm formula to version ${{ env.LATEST_VERSION }}.
+            
+            **Changes:**
+            - Updated URL to ${{ env.LATEST_VERSION_V }} release
+            - Updated SHA256 to match the new release
+            - Added timestamp to force PR: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            
+            This PR was created automatically by GitHub Actions.
+          branch: ${{ env.BRANCH_NAME }}
+          base: main
+          labels: |
+            automated-pr
+            version-bump
+

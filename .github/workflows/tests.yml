@@ -4,14 +4,20 @@ on:
     branches:
       - main
   pull_request:
+        
 jobs:
   test-bot:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-12, macos-13]
+        include:
+          # Intel builds
+          - os: macos-13
+            arch: x86_64
+          - os: macos-14
+            arch: x86_64
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 60  # Increased timeout for ARM builds
     steps:
       - name: Set up Homebrew
         id: set-up-homebrew
@@ -19,11 +25,12 @@ jobs:
 
       - name: Cache Homebrew Bundler RubyGems
         id: cache
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ${{ steps.set-up-homebrew.outputs.gems-path }}
-          key: ${{ runner.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
-          restore-keys: ${{ runner.os }}-rubygems-
+          key: ${{ runner.os }}-${{ matrix.arch }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.arch }}-rubygems-
 
       - name: Install Homebrew Bundler RubyGems
         if: steps.cache.outputs.cache-hit != 'true'
@@ -36,11 +43,13 @@ jobs:
       - run: brew test-bot --only-tap-syntax
 
       - run: brew test-bot --only-formulae
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' 
+        env:
+          HOMEBREW_ARCH: ${{ matrix.arch }}
 
       - name: Upload bottles as artifact
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/upload-artifact@main
+        if: always() && (github.event_name == 'pull_request')
+        uses: actions/upload-artifact@v4
         with:
-          name: bottles
+          name: bottles_${{ matrix.os }}_${{ matrix.arch }}
           path: '*.bottle.*'
