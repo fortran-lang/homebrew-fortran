@@ -13,8 +13,8 @@ class Lfortran < Formula
   depends_on "cmake" => :build
   depends_on "ninja" => :build
   depends_on "llvm"
-  depends_on "zlib"
   depends_on "z3"
+  depends_on "zlib"
 
   def install
     cmake_args = std_cmake_args
@@ -27,13 +27,13 @@ class Lfortran < Formula
   end
 
   test do
-    system "bin/lfortran", "--version"
+    system bin/"lfortran", "--version"
     (testpath/"hello.f90").write <<~EOS
       program hello
         print *, "Hello, World!"
       end
     EOS
-    system "bin/lfortran", testpath/"hello.f90", "-o", testpath/"hello"
+    system bin/"lfortran", testpath/"hello.f90", "-o", testpath/"hello"
     assert_path_exists testpath/"hello"
     system testpath/"hello"
   end
