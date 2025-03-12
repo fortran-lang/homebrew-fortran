@@ -6,8 +6,8 @@ class Lfortran < Formula
   license "BSD-3-Clause"
 
   bottle do
-    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.46.0"
-    # sha256 cellar: :any, big_sur: "67d1ee4fd768f602cd2ed2dcd26dce2b2b011edaebbb7fea0e91541d4384624e"
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.16.0"
+    sha256 cellar: :any, big_sur: "67d1ee4fd768f602cd2ed2dcd26dce2b2b011edaebbb7fea0e91541d4384624e"
   end
 
   depends_on "cmake" => :build
