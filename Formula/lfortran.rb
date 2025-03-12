@@ -6,8 +6,10 @@ class Lfortran < Formula
   license "BSD-3-Clause"
 
   bottle do
-    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.16.0"
-    sha256 cellar: :any, big_sur: "67d1ee4fd768f602cd2ed2dcd26dce2b2b011edaebbb7fea0e91541d4384624e"
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.46.0"
+    rebuild 1
+    sha256 cellar: :any, arm64_sonoma: "18463218cdd1a5fc09b468f27051b55a03c8c693c73aff6b3a6696cc439c2f59"
+    sha256 cellar: :any, ventura:      "62dc18247373cd3ec6364783e8e3e645d246e64b8a72026a3be6eca3f892f227"
   end
 
   depends_on "cmake" => :build
