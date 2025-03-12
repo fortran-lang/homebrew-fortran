@@ -7,9 +7,8 @@ class Lfortran < Formula
 
   bottle do
     root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.48.0"
-    rebuild 1
-    sha256 cellar: :any, arm64_sonoma: "18463218cdd1a5fc09b468f27051b55a03c8c693c73aff6b3a6696cc439c2f59"
-    sha256 cellar: :any, ventura:      "62dc18247373cd3ec6364783e8e3e645d246e64b8a72026a3be6eca3f892f227"
+    sha256 cellar: :any, arm64_sonoma: "8dc23abe3646274ccc3ddbe190e8e5604d438859f65c9ec0b2a9894bc4718323"
+    sha256 cellar: :any, ventura:      "4e07cffa3787016848b76c65aa794886bfa5abc4c340cd7afaa6a8567edf340b"
   end
 
   depends_on "cmake" => :build
