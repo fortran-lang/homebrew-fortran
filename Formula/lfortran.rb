@@ -2,7 +2,7 @@ class Lfortran < Formula
   desc "Modern interactive LLVM-based Fortran compiler"
   homepage "https://lfortran.org"
   url "https://github.com/lfortran/lfortran/releases/download/v0.48.0/lfortran-0.48.0.tar.gz"
-  sha256 "420885b4bcfd2206bc5ae9cdb658f2382b35b0e4d145476a97bdc7d642d4a588"
+  sha256 "13569cd83a00ec03473f5425c31e9420f185bbc717d70919b14e7f3a7fb52bba"
   license "BSD-3-Clause"
 
   bottle do
