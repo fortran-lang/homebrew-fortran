@@ -7,6 +7,7 @@ For example you can install *fpm* by tapping this repository
 ```
 `brew tap fortran-lang/homebrew-fortran`
 brew install fpm
+brew install lfortran
 ```
 
 Available packages from this tap are
