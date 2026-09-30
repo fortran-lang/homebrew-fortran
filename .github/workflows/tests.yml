@@ -80,6 +80,7 @@ jobs:
       # means the formula we asked for was not built, whatever the exit status said.
       - name: Check that every formula was built
         if: always() && (steps.test-formulae.conclusion == 'success' || steps.test-formulae-manual.conclusion == 'success')
+        shell: bash
         env:
           SKIPPED_FROM_PR: ${{ steps.test-formulae.outputs.skipped_or_failed_formulae }}
           SKIPPED_FROM_MANUAL: ${{ steps.test-formulae-manual.outputs.skipped_or_failed_formulae }}
