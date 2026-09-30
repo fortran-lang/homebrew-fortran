@@ -1,4 +1,5 @@
 name: test
+
 on:
   push:
     branches:
@@ -7,6 +8,7 @@ on:
 
 jobs:
   test:
+    name: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -15,7 +17,20 @@ jobs:
             arch: arm64
           - os: macos-15
             arch: arm64
+          - os: ubuntu-latest
+            arch: x86_64
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
     runs-on: ${{ matrix.os }}
+    # Linux builds run inside Homebrew's image so bottles target its pinned glibc,
+    # not whatever the runner image happens to ship. `null` here disables the container.
+    container: ${{ fromJSON(toJSON(matrix.container)) }}
     timeout-minutes: 60
     steps:
       - name: Set up Homebrew
@@ -43,8 +58,6 @@ jobs:
 
       - run: brew test-bot --only-formulae
         if: github.event_name == 'pull_request'
-        env:
-          HOMEBREW_ARCH: ${{ matrix.arch }}
 
       - name: Upload bottles as artifact
         if: always() && (github.event_name == 'pull_request')
