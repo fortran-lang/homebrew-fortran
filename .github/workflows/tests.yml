@@ -65,12 +65,41 @@ jobs:
       - run: brew test-bot --only-tap-syntax
 
       - name: Test formulae
+        id: test-formulae
         if: github.event_name == 'pull_request'
         run: brew test-bot --only-formulae
 
       - name: Test formulae (manual run)
+        id: test-formulae-manual
         if: github.event_name == 'workflow_dispatch'
         run: brew test-bot --only-formulae --testing-formulae=${{ inputs.formulae }}
+
+      # `brew test-bot` records a failed install of a modified formula that has no
+      # bottle for the current version as *skipped* rather than failed, so the job
+      # would otherwise pass without building anything. Any skipped or failed formula
+      # means the formula we asked for was not built, whatever the exit status said.
+      - name: Check that every formula was built
+        if: always() && (steps.test-formulae.conclusion == 'success' || steps.test-formulae-manual.conclusion == 'success')
+        shell: bash
+        env:
+          SKIPPED_FROM_PR: ${{ steps.test-formulae.outputs.skipped_or_failed_formulae }}
+          SKIPPED_FROM_MANUAL: ${{ steps.test-formulae-manual.outputs.skipped_or_failed_formulae }}
+        run: |
+          skipped="${SKIPPED_FROM_PR:-}${SKIPPED_FROM_MANUAL:-}"
+          if [[ -z "${skipped}" ]]; then
+            exit 0
+          fi
+
+          {
+            echo "### Not built: ${skipped}"
+            echo
+            echo "brew test-bot records a failed install of a modified formula that has no"
+            echo "bottle for the current version as a skip rather than a failure, so it"
+            echo "exits 0 and no bottle is uploaded. The cause is in this run's annotations"
+            echo "(Checks tab); the compiler's own test output is in the step log."
+          } >> "${GITHUB_STEP_SUMMARY}"
+          echo "::error::brew test-bot skipped or failed: ${skipped}"
+          exit 1
 
       - name: Upload bottles as artifact
         if: always() && (github.event_name == 'pull_request')
