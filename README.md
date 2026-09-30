@@ -4,13 +4,13 @@ This repository provides package build instructions for tools and libraries arou
 
 The [`lfortran`](https://lfortran.org) compiler is installed from this tap:
 
-```
+```sh
 brew install fortran-lang/fortran/lfortran
 ```
 
 [`fpm`](https://fpm.fortran-lang.org) and [`fortls`](https://fortls.fortran-lang.org) are available from Homebrew directly:
 
-```
+```sh
 brew install fpm
 brew install fortls
 ```
