@@ -1,20 +1,20 @@
-name: brew pr-pull
+name: publish
 on:
   pull_request_target:
     types:
       - labeled
 
 jobs:
-  pr-pull:
+  publish:
     if: contains(github.event.pull_request.labels.*.name, 'pr-pull')
     runs-on: ubuntu-latest
 
     steps:
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+        uses: Homebrew/actions/setup-homebrew@2026.09.28.1
 
       - name: Set up git
-        uses: Homebrew/actions/git-user-config@master
+        uses: Homebrew/actions/git-user-config@2026.09.28.1
 
       - name: Pull bottles
         env:
@@ -24,7 +24,7 @@ jobs:
         run: brew pr-pull --debug --tap="${GITHUB_REPOSITORY}" "${PULL_REQUEST}"
 
       - name: Push commits
-        uses: Homebrew/actions/git-try-push@master
+        uses: Homebrew/actions/git-try-push@2026.09.28.1
         with:
           token: ${{ github.token }}
           branch: "main"
@@ -34,4 +34,3 @@ jobs:
         env:
           BRANCH: ${{ github.event.pull_request.head.ref }}
         run: git push --delete origin "${BRANCH}"
-

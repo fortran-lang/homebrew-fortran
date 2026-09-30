@@ -1,7 +1,7 @@
 name: Auto-update fpm Formula
 
 on:
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   update-fpm:
@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Fetch latest fpm release
         id: get-latest-release
@@ -64,7 +64,7 @@ jobs:
           sed -i "1s/^/# Formula last updated on $(date -u +"%Y-%m-%dT%H:%M:%SZ") (Run: ${RUN_ID})\n/" Formula/fpm.rb
           sed -i "s|url \".*\"|url \"https://github.com/fortran-lang/fpm/releases/download/${{ env.LATEST_VERSION_V }}/fpm-${{ env.LATEST_VERSION }}.zip\"|" Formula/fpm.rb
           sed -i "s|sha256 \".*\"|sha256 \"${{ env.SHA256 }}\"|" Formula/fpm.rb
-          
+
       - name: Debug - Show changes
         if: env.UPDATE_NEEDED == 'true'
         run: |
@@ -73,23 +73,22 @@ jobs:
       - name: Create Pull Request
         if: env.UPDATE_NEEDED == 'true'
         id: create-pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update fpm to ${{ env.LATEST_VERSION }} with timestamp"
           title: "Update fpm to ${{ env.LATEST_VERSION }}"
           body: |
             This PR automatically updates the fpm formula to version ${{ env.LATEST_VERSION }}.
-            
+
             **Changes:**
             - Updated URL to ${{ env.LATEST_VERSION_V }} release
             - Updated SHA256 to match the new release
             - Added timestamp to force PR: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-            
+
             This PR was created automatically by GitHub Actions.
           branch: ${{ env.BRANCH_NAME }}
           base: main
           labels: |
             automated-pr
             version-bump
-

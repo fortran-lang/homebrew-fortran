@@ -1,31 +1,30 @@
-name: brew test-bot
+name: test
 on:
   push:
     branches:
       - main
   pull_request:
-        
+
 jobs:
-  test-bot:
+  test:
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Intel builds
-          - os: macos-13
-            arch: x86_64
-          - os: macos-14
-            arch: x86_64
+          - os: macos-26
+            arch: arm64
+          - os: macos-15
+            arch: arm64
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60  # Increased timeout for ARM builds
+    timeout-minutes: 60
     steps:
       - name: Set up Homebrew
         id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+        uses: Homebrew/actions/setup-homebrew@2026.09.28.1
 
       - name: Cache Homebrew Bundler RubyGems
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.set-up-homebrew.outputs.gems-path }}
           key: ${{ runner.os }}-${{ matrix.arch }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
@@ -43,13 +42,13 @@ jobs:
       - run: brew test-bot --only-tap-syntax
 
       - run: brew test-bot --only-formulae
-        if: github.event_name == 'pull_request' 
+        if: github.event_name == 'pull_request'
         env:
           HOMEBREW_ARCH: ${{ matrix.arch }}
 
       - name: Upload bottles as artifact
         if: always() && (github.event_name == 'pull_request')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bottles_${{ matrix.os }}_${{ matrix.arch }}
-          path: '*.bottle.*'
+          path: "*.bottle.*"
