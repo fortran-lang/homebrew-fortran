@@ -5,6 +5,12 @@ class Lfortran < Formula
   sha256 "13569cd83a00ec03473f5425c31e9420f185bbc717d70919b14e7f3a7fb52bba"
   license "BSD-3-Clause"
 
+  livecheck do
+    url :stable
+    strategy :github_latest
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
+
   bottle do
     root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.48.0"
     sha256 cellar: :any, arm64_sonoma: "8dc23abe3646274ccc3ddbe190e8e5604d438859f65c9ec0b2a9894bc4718323"
@@ -29,14 +35,16 @@ class Lfortran < Formula
   end
 
   test do
-    system bin/"lfortran", "--version"
+    assert_match version.to_s, shell_output("#{bin}/lfortran --version")
+
     (testpath/"hello.f90").write <<~EOS
       program hello
         print *, "Hello, World!"
       end
     EOS
+
     system bin/"lfortran", testpath/"hello.f90", "-o", testpath/"hello"
     assert_path_exists testpath/"hello"
-    system testpath/"hello"
+    assert_equal "Hello, World!", shell_output("#{testpath}/hello").strip
   end
 end
