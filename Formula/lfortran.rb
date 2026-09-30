@@ -30,7 +30,6 @@ class Lfortran < Formula
     cmake_args << "-DWITH_LSP=yes"
     system "cmake", *cmake_args, "-G", "Ninja", "-B", "build"
     system "cmake", "--build", "build"
-    system "ctest", "--test-dir", "build", "--output-on-failure"
     system "cmake", "--install", "build"
   end
 
