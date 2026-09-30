@@ -13,12 +13,8 @@ jobs:
         include:
           - os: macos-26
             arch: arm64
-          - os: macos-26-intel
-            arch: x86_64
           - os: macos-15
             arch: arm64
-          - os: macos-15-intel
-            arch: x86_64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -55,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: bottles_${{ matrix.os }}_${{ matrix.arch }}
-          path: '*.bottle.*'
+          path: "*.bottle.*"
