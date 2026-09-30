@@ -1,11 +1,11 @@
-name: new version detector
+name: version detector
 
 on:
   push:
     branches:
       - main
     paths:
-      - .github/workflows/new_version_detector.yml
+      - .github/workflows/version_detector.yml
   schedule:
     - cron: "23 6 * * *"
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: new-version-detector
+  group: version-detector
   cancel-in-progress: false
 
 defaults:
