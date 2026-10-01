@@ -12,9 +12,10 @@ class Lfortran < Formula
   end
 
   bottle do
-    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.48.0"
-    sha256 cellar: :any, arm64_sonoma: "8dc23abe3646274ccc3ddbe190e8e5604d438859f65c9ec0b2a9894bc4718323"
-    sha256 cellar: :any, ventura:      "4e07cffa3787016848b76c65aa794886bfa5abc4c340cd7afaa6a8567edf340b"
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.66.0"
+    sha256 cellar: :any, arm64_tahoe:   "80889f6c5c2ec10527d6bfe616153093ac042ef799bc8e9d88b043c00a9cda11"
+    sha256 cellar: :any, arm64_sequoia: "e69fa18d8537720f1e942b50c7bcf4a4f54a0584618e1792b39bbe814b00be5b"
+    sha256 cellar: :any, arm64_linux:   "bd3f769f3807a94758604433ee079e04b667dbc204c457fa4395154081fe7d44"
   end
 
   depends_on "cmake" => :build
