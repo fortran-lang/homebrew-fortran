@@ -15,6 +15,13 @@ brew install fpm
 brew install fortls
 ```
 
+## Updating a formula
+
+1) The daily `version_detector` workflow checks for new releases and opens a version-bump PR if it finds one.
+2) The `test` workflow builds the formula from source on all supported platforms and uploads the bottles as CI artifacts. Wait until it is green.
+3) Add the `pr-pull` label to the PR. Only do this after CI is green, otherwise bottles will be missing.
+4) This triggers the `publish` workflow, which runs `brew pr-pull`: it downloads the bottles from CI artifacts, uploads them to a GitHub Release (creating it if needed), commits the `bottle` block to the formula, pushes to `main`, and cleans up the PR branch. Do not merge the PR manually.
+
 ## License
 
 The package build files are available under a [BSD-2-Clause license](LICENSE).
