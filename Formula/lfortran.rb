@@ -20,8 +20,8 @@ class Lfortran < Formula
   end
 
   depends_on "cmake" => :build
-  depends_on "ninja" => :build
   depends_on "lld" => :build
+  depends_on "ninja" => :build
   depends_on "llvm"
   depends_on "z3"
   depends_on "zlib"
@@ -31,11 +31,9 @@ class Lfortran < Formula
     cmake_args << "-DCMAKE_CXX_FLAGS_RELEASE=-O3 -funroll-loops -DNDEBUG"
     cmake_args << "-DWITH_LLVM=ON"
     cmake_args << "-DWITH_LSP=yes"
-    on_linux do
-      on_intel do
-        cmake_args << "-DCMAKE_C_FLAGS=-fuse-ld=lld"
-        cmake_args << "-DCMAKE_CXX_FLAGS=-fuse-ld=lld"
-      end
+    if OS.linux? && Hardware::CPU.intel?
+      cmake_args << "-DCMAKE_C_FLAGS=-fuse-ld=lld"
+      cmake_args << "-DCMAKE_CXX_FLAGS=-fuse-ld=lld"
     end
     system "cmake", *cmake_args, "-G", "Ninja", "-B", "build"
     system "cmake", "--build", "build"
