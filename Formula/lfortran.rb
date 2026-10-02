@@ -4,6 +4,7 @@ class Lfortran < Formula
   url "https://github.com/lfortran/lfortran/releases/download/v0.66.0/lfortran-0.66.0.tar.gz"
   sha256 "961d84f49d07951a279b7835e0f9864489a167a80a8c3c502a797fb6c61669c7"
   license "BSD-3-Clause"
+  revision 1
 
   livecheck do
     url :stable
@@ -20,6 +21,7 @@ class Lfortran < Formula
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
+  depends_on "lld" => :build
   depends_on "llvm"
   depends_on "z3"
   depends_on "zlib"
@@ -29,6 +31,12 @@ class Lfortran < Formula
     cmake_args << "-DCMAKE_CXX_FLAGS_RELEASE=-O3 -funroll-loops -DNDEBUG"
     cmake_args << "-DWITH_LLVM=ON"
     cmake_args << "-DWITH_LSP=yes"
+    on_linux do
+      on_intel do
+        cmake_args << "-DCMAKE_C_FLAGS=-fuse-ld=lld"
+        cmake_args << "-DCMAKE_CXX_FLAGS=-fuse-ld=lld"
+      end
+    end
     system "cmake", *cmake_args, "-G", "Ninja", "-B", "build"
     system "cmake", "--build", "build"
     system "cmake", "--install", "build"
