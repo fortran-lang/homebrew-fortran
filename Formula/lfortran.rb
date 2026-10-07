@@ -1,10 +1,9 @@
 class Lfortran < Formula
   desc "Modern interactive LLVM-based Fortran compiler"
   homepage "https://lfortran.org"
-  url "https://github.com/lfortran/lfortran/releases/download/v0.66.0/lfortran-0.66.0.tar.gz"
-  sha256 "961d84f49d07951a279b7835e0f9864489a167a80a8c3c502a797fb6c61669c7"
+  url "https://github.com/lfortran/lfortran/releases/download/v0.67.0/lfortran-0.67.0.tar.gz"
+  sha256 "d9d9fa328c396e31707896cc1e2a4f80ffc70227ed7662b961a86c8c91547381"
   license "BSD-3-Clause"
-  revision 1
 
   livecheck do
     url :stable
