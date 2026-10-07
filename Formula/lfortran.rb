@@ -12,11 +12,11 @@ class Lfortran < Formula
   end
 
   bottle do
-    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.66.0_1"
-    sha256 cellar: :any, arm64_tahoe:   "f6fe5da65902ad0fea0f8a9c5619df2d7db1c35aea50b00e6e94e804e6849d09"
-    sha256 cellar: :any, arm64_sequoia: "799520e2a1afcc744d9f992bc5554d91dd4329a7ba77b4a3cd0c4ee6fbb4ad5c"
-    sha256 cellar: :any, arm64_linux:   "c51fd048cb258dcd90283ff1d5bb9bd842803726f6cbd7fce75ce35db0a1c3c0"
-    sha256 cellar: :any, x86_64_linux:  "c64aa78f02c7a53d3e7bf9caf7e826ffe9f9c5ad50718f4f6c3fd72b30e7ae14"
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.67.0"
+    sha256 cellar: :any, arm64_tahoe:   "75d9a026b12141f0317eb6f8852c2ba7d1f6abc18e34c9052bf47d53015fc140"
+    sha256 cellar: :any, arm64_sequoia: "b7a704da818ac2ad2347b45ec2d3a36bc5574a2b738d17019c4b83736965b0b7"
+    sha256 cellar: :any, arm64_linux:   "7e16e6e7f1b88b085ee7d81722def76ce91a8c81f255745511a5e58ac7e41547"
+    sha256 cellar: :any, x86_64_linux:  "79f2c669940efbd27c3bc3a8710e27ea28f4577b19763d4b7ee27c1659d97ed9"
   end
 
   depends_on "cmake" => :build
