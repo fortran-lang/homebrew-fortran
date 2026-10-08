@@ -16,6 +16,8 @@ class Lfortran < Formula
   depends_on "emscripten" => :build
   depends_on "lld" => :build
   depends_on "ninja" => :build
+  depends_on "node" => :build
+  depends_on "python@3.14" => :build
   depends_on "llvm"
   depends_on "z3"
   depends_on "zlib"
@@ -27,6 +29,9 @@ class Lfortran < Formula
     (libexec/"emsdk/upstream").mkpath
     ln_s formula_opt_libexec("emscripten"), libexec/"emsdk/upstream/emscripten"
     ENV["EMSDK_PATH"] = (libexec/"emsdk").to_s
+    # emcc's wrapper falls back to `command -v python3`, which is Xcode's 3.9
+    # on macOS and absent on Linux under superenv; point it at our python.
+    ENV["EMSDK_PYTHON"] = formula_opt_bin("python@3.14")/"python3.14"
     # emcc generates its sysroot into its cache, which lives in emscripten's
     # Cellar; the build sandbox only allows writes to our own.
     ENV["EM_CACHE"] = (buildpath/"emcache").to_s
