@@ -1,0 +1,128 @@
+name: compatibility
+
+on:
+  schedule:
+    - cron: "23 7 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: compatibility
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+jobs:
+  check:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-26
+          - os: macos-15
+          - os: ubuntu-latest
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
+          - os: ubuntu-24.04-arm
+            container:
+              image: ghcr.io/homebrew/brew:main
+              options: --privileged
+    runs-on: ${{ matrix.os }}
+    container: ${{ fromJSON(toJSON(matrix.container)) }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@2026.10.19.1
+
+      - name: Install published bottle
+        run: brew install --force-bottle fortran-lang/fortran/lfortran
+
+      - name: Check linkage
+        run: brew linkage --test fortran-lang/fortran/lfortran
+
+      - name: Run formula test
+        run: brew test fortran-lang/fortran/lfortran
+
+  repair:
+    name: Open revision-bump pull request
+    needs: check
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@2026.10.19.1
+
+      - name: Set up git
+        id: git_setup
+        uses: Homebrew/actions/git-user-config@2026.10.19.1
+
+      - name: Determine branch name
+        id: state
+        run: |
+          info="$(brew info --json=v2 --formula fortran-lang/fortran/lfortran)"
+          version="$(jq -r '.formulae[0].versions.stable' <<<"$info")"
+          revision="$(jq -r '.formulae[0].revision' <<<"$info")"
+          echo "branch=compatibility/lfortran-${version}_${revision}" >>"$GITHUB_OUTPUT"
+
+      - name: Check for an existing pull request
+        id: existing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          branch="${{ steps.state.outputs.branch }}"
+          count="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$branch" --state all --json number --jq 'length')"
+          if [[ "$count" -gt 0 ]]; then
+            echo "A pull request for $branch already exists."
+            echo "skip=true" >>"$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump revision
+        if: steps.existing.outputs.skip != 'true'
+        env:
+          HOMEBREW_GIT_COMMITTER_NAME: ${{ steps.git_setup.outputs.name }}
+          HOMEBREW_GIT_COMMITTER_EMAIL: ${{ steps.git_setup.outputs.email }}
+        run: |
+          tap="$(brew --repository fortran-lang/fortran)"
+          git -C "$tap" switch -c "${{ steps.state.outputs.branch }}"
+          brew bump-revision --remove-bottle-block --message "to rebuild against current dependencies" fortran-lang/fortran/lfortran
+
+      - name: Push branch
+        if: steps.existing.outputs.skip != 'true'
+        uses: Homebrew/actions/git-try-push@2026.10.19.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          directory: ${{ steps.set-up-homebrew.outputs.repository-path }}
+          branch: ${{ steps.state.outputs.branch }}
+
+      - name: Open pull request
+        if: steps.existing.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh pr create --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --head "${{ steps.state.outputs.branch }}" \
+            --title "lfortran: revision bump to rebuild against current dependencies" \
+            --body "$(cat <<EOF
+          The scheduled compatibility check failed: the published lfortran bottle no longer works with the current versions of its Homebrew dependencies.
+
+          Run: ${RUN_URL}
+
+          This bumps the revision and removes the bottle block so that new bottles are built for the current dependencies.
+
+          The test workflow does not start automatically for pull requests opened with GITHUB_TOKEN. Start it manually (or re-run the pending run), and add the pr-pull label once it is green.
+          EOF
+          )"
