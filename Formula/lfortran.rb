@@ -12,6 +12,14 @@ class Lfortran < Formula
     regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
+  bottle do
+    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.68.0_1"
+    sha256 cellar: :any, arm64_tahoe:   "3e18d3b508d2633a5ee125f7d68bc5364774cc996a4feba77307922a86d3cff7"
+    sha256 cellar: :any, arm64_sequoia: "da75176a6d7d13528c70eeaf14a6f1044b365e9e530514f3ae0c5002a2d4b442"
+    sha256 cellar: :any, arm64_linux:   "d5a59f93a8b51646afb2febd51b30b315027c61f2190a10e132fbd84a7d0bc0c"
+    sha256 cellar: :any, x86_64_linux:  "5dec6600b1597b925d9fc51646608abcee7f7a37b6cbff87ac5cb9e27d0a6ee2"
+  end
+
   depends_on "cmake" => :build
   depends_on "emscripten" => :build
   depends_on "lld" => :build
