@@ -4,19 +4,12 @@ class Lfortran < Formula
   url "https://github.com/lfortran/lfortran/releases/download/v0.68.0/lfortran-0.68.0.tar.gz"
   sha256 "0fdb58f9e0f442530b274d001c7fcdf53a62ee65fa87b7ca26b96c56dd3c7d64"
   license "BSD-3-Clause"
+  revision 1
 
   livecheck do
     url :stable
     strategy :github_latest
     regex(/^v?(\d+(?:\.\d+)+)$/i)
-  end
-
-  bottle do
-    root_url "https://github.com/fortran-lang/homebrew-fortran/releases/download/lfortran-0.68.0"
-    sha256 cellar: :any, arm64_tahoe:   "50c3a674e912f82ce4b5e854a6bf06954a677b43a2a735e9391bdc1b7f73322b"
-    sha256 cellar: :any, arm64_sequoia: "98f7f5fb07b88ef013c3d20322eb0923fad6a2c1a7be285450bc131b5beb6f10"
-    sha256 cellar: :any, arm64_linux:   "e82af167a2ceae11e88790cb4b79914886f9b59cb389f63f5ae9ae8013d224d2"
-    sha256 cellar: :any, x86_64_linux:  "c146a77174a7437866be01005c25074e8a22d686a18760ce3721eef5593ef4b4"
   end
 
   depends_on "cmake" => :build
@@ -26,7 +19,6 @@ class Lfortran < Formula
   depends_on "node" => :build
   depends_on "python@3.14" => :build
   depends_on "llvm"
-  depends_on "z3"
   depends_on "zlib"
 
   def install
@@ -49,6 +41,8 @@ class Lfortran < Formula
 
     cmake_args = std_cmake_args
     cmake_args << "-DCMAKE_CXX_FLAGS_RELEASE=-O3 -funroll-loops -DNDEBUG"
+    # LLVM's static libraries drag in an unused libz3; don't record the load.
+    cmake_args << "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-dead_strip_dylibs" if OS.mac?
     cmake_args << "-DWITH_LLVM=ON"
     cmake_args << "-DWITH_LSP=yes"
     cmake_args << "-DWITH_TARGET_WASM=yes"
