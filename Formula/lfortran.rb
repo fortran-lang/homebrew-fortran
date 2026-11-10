@@ -42,8 +42,8 @@ class Lfortran < Formula
     # Cellar; the build sandbox only allows writes to our own.
     ENV["EM_CACHE"] = (buildpath/"emcache").to_s
 
-    # superenv replaces -O3 with -Os, at which the runtime miscompiles formatted
-    # reads from stdin. Without this the -O3 requested below never takes effect.
+    # superenv defaults to -Os and would override the -O3 release flags below;
+    # keep -O3 to match upstream and conda-forge (compiler and runtime).
     ENV.O3
 
     cmake_args = std_cmake_args
